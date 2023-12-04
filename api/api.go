@@ -116,26 +116,31 @@ func (c *Client) GetWithAuth(query string) (*http.Response, error) {
 // DoWithAuth performs the given request. If an authentication error occurs,
 // it tries to login to renew the sessionID, then tries the request again.
 func (c *Client) DoWithAuth(req *http.Request) (*http.Response, error) {
+	resp, err := c.doWithcheck(req)
+	if err != nil {
+		switch err.(type) {
+		case *AuthenticationError:
+			if err := c.Login(); err != nil {
+				return nil, err
+			}
+			return c.doWithcheck(req)
+		default:
+			return nil, err
+		}
+	}
+	return resp, nil
+}
+
+func (c *Client) doWithcheck(req *http.Request) (*http.Response, error) {
 	req.Header.Set("User-Agent", "overkiz/1.0")
 	resp, err := c.hc.Do(req)
 	if err != nil {
 		return nil, err
 	}
 	if err := checkStatusOk(resp); err != nil {
-		switch err.(type) {
-		case *AuthenticationError:
-			if err := c.Login(); err != nil {
-				return nil, err
-			}
-			resp, err := c.hc.Do(req)
-			if err != nil {
-				return nil, err
-			}
-			return resp, nil
-		default:
-			return nil, err
-		}
+		return nil, err
 	}
+
 	return resp, nil
 }
 
