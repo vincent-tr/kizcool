@@ -289,9 +289,14 @@ func (c *Client) PollEvents() (*http.Response, error) {
 // if an error occured, try to qualify it then return it. In this case the Body of the
 // response is closed.
 func checkStatusOk(resp *http.Response) error {
+	if resp.Body == nil {
+		return errors.New("checkStatusOk got empty Body")
+	}
+
 	if resp.StatusCode == 200 {
 		return nil
 	}
+
 	defer resp.Body.Close()
 	// Decode the body to try to get a meaningful error message
 	type errResult struct {
@@ -300,9 +305,6 @@ func checkStatusOk(resp *http.Response) error {
 	}
 	var result errResult
 	var bodyBytes []byte
-	if resp.Body == nil {
-		return errors.New("checkStatusOk got empty Body")
-	}
 	bodyBytes, _ = ioutil.ReadAll(resp.Body)
 	if err := json.Unmarshal(bodyBytes, &result); err != nil {
 		return &JSONError{

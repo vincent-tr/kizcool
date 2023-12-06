@@ -176,6 +176,8 @@ func (k *Kiz) Execute(ag ActionGroup) (ExecID, error) {
 	if err != nil {
 		return "", err
 	}
+	defer resp.Body.Close()
+
 	type Result struct {
 		ExecID ExecID
 	}
@@ -261,6 +263,8 @@ func (k *Kiz) PollEvents() (Events, error) {
 	if err != nil {
 		return nil, fmt.Errorf("Error getting events: %v", err)
 	}
+	defer resp.Body.Close()
+
 	var result Events
 	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
 		return nil, fmt.Errorf("Error decoding events from json: %v", err)
