@@ -91,10 +91,10 @@ func (c *Client) Login() error {
 	if err != nil {
 		return fmt.Errorf("Error logging in: %w", err)
 	}
-	defer resp.Body.Close()
 	if err := checkStatusOk(resp); err != nil {
 		return err
 	}
+	defer resp.Body.Close()
 	for _, cookie := range resp.Cookies() {
 		if (cookie.Name == "JSESSIONID") && (cookie.Value != "") {
 			return nil
