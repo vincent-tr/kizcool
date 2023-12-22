@@ -8,7 +8,7 @@ import (
 	"time"
 
 	"github.com/pkg/errors"
-	"github.com/sgrimee/kizcool/api"
+	"github.com/vincent-tr/kizcool/api"
 )
 
 // Kiz high-level client
