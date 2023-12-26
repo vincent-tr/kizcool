@@ -270,18 +270,25 @@ func (c *Client) PollEvents() (*http.Response, error) {
 			return nil, fmt.Errorf("Error registering first listener: %w", err)
 		}
 	}
+
 	resp, err := c.pollEventsWithID(c.ListenerID())
+
 	if err != nil {
 		if _, ok := err.(*NoRegisteredEventListenerError); ok {
 			if err := c.registerListener(); err != nil {
 				return nil, fmt.Errorf("Error refreshing listener: %w", err)
 			}
+
 			if resp, err = c.pollEventsWithID(c.ListenerID()); err != nil {
 				return nil, fmt.Errorf("Error retrieving events with valid listener: %w", err)
 			}
+
+			return resp, nil
 		}
+
 		return nil, err
 	}
+
 	return resp, nil
 }
 
